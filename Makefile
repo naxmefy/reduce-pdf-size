@@ -5,18 +5,20 @@ TMP_DIR := tmp
 
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 
+LDFLAGS := -s -w
+
 $(TMP_DIR):
 	@mkdir -p $(TMP_DIR)
 
 build: $(TMP_DIR)
-	CGO_ENABLED=0 go build -o $(TMP_DIR)/$(BINARY_NAME) ./cmd/reduce-pdf-size
+	CGO_ENABLED=0 go build -trimpath -ldflags="$(LDFLAGS)" -o $(TMP_DIR)/$(BINARY_NAME) ./cmd/reduce-pdf-size
 
 build-all: $(TMP_DIR)
 	$(foreach PLATFORM,$(PLATFORMS), \
 		$(eval GOOS := $(word 1,$(subst /, ,$(PLATFORM)))) \
 		$(eval GOARCH := $(word 2,$(subst /, ,$(PLATFORM)))) \
 		$(eval EXT := $(if $(filter windows,$(GOOS)),.exe,)) \
-		CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(TMP_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH)$(EXT) ./cmd/reduce-pdf-size; \
+		CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -trimpath -ldflags="$(LDFLAGS)" -o $(TMP_DIR)/$(BINARY_NAME)-$(GOOS)-$(GOARCH)$(EXT) ./cmd/reduce-pdf-size; \
 	)
 
 test: $(TMP_DIR)
