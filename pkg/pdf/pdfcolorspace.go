@@ -35,7 +35,7 @@ func namedColorSpace(name string) (kind string, ncomp int, ok bool) {
 
 // resolveRef parses a "N G R" token and returns the referenced object's raw
 // bytes, if present in the document.
-func resolveRef(doc *pdfDoc, token []byte) ([]byte, bool) {
+func resolveRef(doc *Doc, token []byte) ([]byte, bool) {
 	m := refRe.FindSubmatch(bytes.TrimSpace(token))
 	if m == nil {
 		return nil, false
@@ -77,7 +77,7 @@ func iccComponents(obj []byte) (kind string, ncomp int, ok bool) {
 // CalGray/CalRGB/Indexed wrapper) are supported; anything else (CMYK,
 // Separation, DeviceN, Lab, ...) is reported as unsupported so the caller
 // can safely leave the image untouched.
-func resolveColorSpace(doc *pdfDoc, value []byte) csInfo {
+func resolveColorSpace(doc *Doc, value []byte) csInfo {
 	value = bytes.TrimSpace(value)
 	if len(value) == 0 {
 		return csInfo{}
@@ -109,7 +109,7 @@ func resolveColorSpace(doc *pdfDoc, value []byte) csInfo {
 // indirect object (its body is either an array like [/ICCBased 5 0 R], or
 // (for ICCBased profile streams referenced directly) a stream object that
 // itself carries /N).
-func resolveColorSpaceObject(doc *pdfDoc, obj []byte) csInfo {
+func resolveColorSpaceObject(doc *Doc, obj []byte) csInfo {
 	dictPart := extractDictPart(obj)
 	trimmed := bytes.TrimSpace(dictPart)
 	// Strip "N G obj" header if this is a plain (non-stream) object whose
@@ -126,7 +126,7 @@ func resolveColorSpaceObject(doc *pdfDoc, obj []byte) csInfo {
 	return csInfo{}
 }
 
-func resolveColorSpaceArray(doc *pdfDoc, arr []byte) csInfo {
+func resolveColorSpaceArray(doc *Doc, arr []byte) csInfo {
 	start, end, ok := readValueAt(arr, 0)
 	if !ok || arr[start] != '[' {
 		return csInfo{}
@@ -164,7 +164,7 @@ func resolveColorSpaceArray(doc *pdfDoc, arr []byte) csInfo {
 	}
 }
 
-func resolveIndexed(doc *pdfDoc, inner []byte, pos int) csInfo {
+func resolveIndexed(doc *Doc, inner []byte, pos int) csInfo {
 	baseStart, baseEnd, ok := readValueAt(inner, pos)
 	if !ok {
 		return csInfo{}

@@ -26,14 +26,15 @@ var (
 	bpcRe            = regexp.MustCompile(`/BitsPerComponent\s+(\d+)`)
 )
 
-type recompressStats struct {
+// RecompressStats summarizes the outcome of a RecompressImages call.
+type RecompressStats struct {
 	ImagesFound  int
 	Recompressed int
 	BytesSaved   int64
 	Notes        []string
 }
 
-func (s *recompressStats) note(format string, args ...any) {
+func (s *RecompressStats) note(format string, args ...any) {
 	s.Notes = append(s.Notes, fmt.Sprintf(format, args...))
 }
 
@@ -44,8 +45,8 @@ func (s *recompressStats) note(format string, args ...any) {
 // (DCTDecode) streams are simply recompressed, and uncompressed/Flate raw
 // bitmaps (DeviceGray/DeviceRGB, directly or via ICCBased/Indexed) are
 // converted to JPEG.
-func RecompressImages(doc *pdfDoc, quality int, maxDim int) recompressStats {
-	var stats recompressStats
+func RecompressImages(doc *Doc, quality int, maxDim int) RecompressStats {
+	var stats RecompressStats
 
 	nums := make([]int, 0, len(doc.raw))
 	for n := range doc.raw {
@@ -79,7 +80,7 @@ func RecompressImages(doc *pdfDoc, quality int, maxDim int) recompressStats {
 	return stats
 }
 
-func finalizeImage(doc *pdfDoc, num int, dictPart []byte, img image.Image, origLen int, quality, maxDim int, colorSpaceOverride string, stats *recompressStats) {
+func finalizeImage(doc *Doc, num int, dictPart []byte, img image.Image, origLen int, quality, maxDim int, colorSpaceOverride string, stats *RecompressStats) {
 	final := img
 	b := img.Bounds()
 	if maxDim > 0 && (b.Dx() > maxDim || b.Dy() > maxDim) {
@@ -118,7 +119,7 @@ func finalizeImage(doc *pdfDoc, num int, dictPart []byte, img image.Image, origL
 	stats.note("obj %d: recompressed (%d -> %d bytes)", num, origLen, len(newBytes))
 }
 
-func processJPEGObject(doc *pdfDoc, num int, quality, maxDim int, stats *recompressStats) {
+func processJPEGObject(doc *Doc, num int, quality, maxDim int, stats *RecompressStats) {
 	raw := doc.raw[num]
 	dictPart := extractDictPart(raw)
 
@@ -149,7 +150,7 @@ func isCMYKImage(img image.Image) bool {
 	return ok
 }
 
-func processRawBitmapObject(doc *pdfDoc, num int, quality, maxDim int, stats *recompressStats) {
+func processRawBitmapObject(doc *Doc, num int, quality, maxDim int, stats *RecompressStats) {
 	raw := doc.raw[num]
 	dictPart := extractDictPart(raw)
 

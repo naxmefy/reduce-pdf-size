@@ -63,7 +63,7 @@ func run(inputPath, outputPath string, force bool, quality, maxDim int, verbose 
 		return fmt.Errorf("could not read input file: %w", err)
 	}
 
-	doc, err := pdf.LoadPDF(buf)
+	doc, err := pdf.Load(buf)
 	if err != nil {
 		return fmt.Errorf("%q is not a supported PDF file: %w", inputPath, err)
 	}

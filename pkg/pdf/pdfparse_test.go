@@ -138,24 +138,24 @@ func TestExpandObjectStreamsLooseDefinitionWins(t *testing.T) {
 	}
 }
 
-func TestLoadPDFRejectsEncrypted(t *testing.T) {
+func TestLoadRejectsEncrypted(t *testing.T) {
 	buf := []byte("%PDF-1.4\n1 0 obj\n<< >>\nendobj\ntrailer\n<< /Root 1 0 R /Encrypt 2 0 R >>\n")
-	if _, err := LoadPDF(buf); err == nil {
+	if _, err := Load(buf); err == nil {
 		t.Fatal("expected error for encrypted PDF")
 	}
 }
 
-func TestLoadPDFRejectsNonPDF(t *testing.T) {
-	if _, err := LoadPDF([]byte("not a pdf")); err == nil {
+func TestLoadRejectsNonPDF(t *testing.T) {
+	if _, err := Load([]byte("not a pdf")); err == nil {
 		t.Fatal("expected error for non-PDF input")
 	}
 }
 
-func TestLoadPDFFindsRootAndInfo(t *testing.T) {
+func TestLoadFindsRootAndInfo(t *testing.T) {
 	pdfBytes := buildJPEGImagePDF(t, 20, 20, 90)
-	doc, err := LoadPDF(pdfBytes)
+	doc, err := Load(pdfBytes)
 	if err != nil {
-		t.Fatalf("LoadPDF: %v", err)
+		t.Fatalf("Load: %v", err)
 	}
 	if doc.rootNum != 1 {
 		t.Fatalf("expected root object 1, got %d", doc.rootNum)
@@ -164,9 +164,9 @@ func TestLoadPDFFindsRootAndInfo(t *testing.T) {
 
 func TestBuildProducesParsableClassicXref(t *testing.T) {
 	pdfBytes := buildJPEGImagePDF(t, 20, 20, 90)
-	doc, err := LoadPDF(pdfBytes)
+	doc, err := Load(pdfBytes)
 	if err != nil {
-		t.Fatalf("LoadPDF: %v", err)
+		t.Fatalf("Load: %v", err)
 	}
 	out := doc.Build()
 
@@ -177,7 +177,7 @@ func TestBuildProducesParsableClassicXref(t *testing.T) {
 		t.Fatal("missing trailer/startxref")
 	}
 
-	reloaded, err := LoadPDF(out)
+	reloaded, err := Load(out)
 	if err != nil {
 		t.Fatalf("rebuilt PDF failed to parse: %v", err)
 	}

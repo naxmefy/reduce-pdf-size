@@ -24,8 +24,8 @@ var (
 	infoRe        = regexp.MustCompile(`/Info\s+(\d+)\s+(\d+)\s+R`)
 )
 
-// pdfDoc holds the flat object model of a PDF, keyed by object number.
-type pdfDoc struct {
+// Doc holds the flat object model of a PDF, keyed by object number.
+type Doc struct {
 	raw  map[int][]byte // full "N G obj ... endobj" bytes per object number
 	gen  map[int]int    // generation number per object number
 	skip map[int]bool   // objects excluded from output (ObjStm/XRef containers)
@@ -229,7 +229,7 @@ func expandObjectStreams(raw map[int][]byte, gen map[int]int) map[int]bool {
 	return skip
 }
 
-func LoadPDF(buf []byte) (*pdfDoc, error) {
+func Load(buf []byte) (*Doc, error) {
 	if isEncrypted(buf) {
 		return nil, fmt.Errorf("encrypted PDFs are not supported")
 	}
@@ -253,7 +253,7 @@ func LoadPDF(buf []byte) (*pdfDoc, error) {
 	rootNum, _ := strconv.Atoi(string(last[1]))
 	rootGen, _ := strconv.Atoi(string(last[2]))
 
-	doc := &pdfDoc{
+	doc := &Doc{
 		raw:     raw,
 		gen:     gen,
 		skip:    skip,
@@ -277,7 +277,7 @@ func LoadPDF(buf []byte) (*pdfDoc, error) {
 }
 
 // Build serializes the document into a fresh, classic-xref PDF.
-func (doc *pdfDoc) Build() []byte {
+func (doc *Doc) Build() []byte {
 	nums := make([]int, 0, len(doc.raw))
 	maxNum := 0
 	for n := range doc.raw {

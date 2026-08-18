@@ -8,7 +8,7 @@ import (
 )
 
 func TestResolveColorSpaceNamed(t *testing.T) {
-	doc := &pdfDoc{raw: map[int][]byte{}}
+	doc := &Doc{raw: map[int][]byte{}}
 
 	cs := resolveColorSpace(doc, []byte("/DeviceRGB"))
 	if !cs.ok || cs.kind != "rgb" || cs.ncomp != 3 {
@@ -27,7 +27,7 @@ func TestResolveColorSpaceNamed(t *testing.T) {
 }
 
 func TestResolveColorSpaceICCBasedIndirect(t *testing.T) {
-	doc := &pdfDoc{raw: map[int][]byte{
+	doc := &Doc{raw: map[int][]byte{
 		5: []byte("5 0 obj\n<< /N 3 /Alternate /DeviceRGB /Length 0 >>\nstream\n\nendstream\nendobj\n"),
 		6: []byte("6 0 obj\n[/ICCBased 5 0 R]\nendobj\n"),
 	}}
@@ -41,7 +41,7 @@ func TestResolveColorSpaceICCBasedIndirect(t *testing.T) {
 func TestResolveColorSpaceICCBasedGrayDirectObject(t *testing.T) {
 	// Some writers point /ColorSpace directly at the ICCBased stream object
 	// rather than at an intermediate array object.
-	doc := &pdfDoc{raw: map[int][]byte{
+	doc := &Doc{raw: map[int][]byte{
 		5: []byte("5 0 obj\n<< /N 1 /Length 0 >>\nstream\n\nendstream\nendobj\n"),
 	}}
 	cs := resolveColorSpace(doc, []byte("5 0 R"))
@@ -61,7 +61,7 @@ func TestResolveColorSpaceIndexedWithStreamLookup(t *testing.T) {
 	zw.Write(palette)
 	zw.Close()
 
-	doc := &pdfDoc{raw: map[int][]byte{
+	doc := &Doc{raw: map[int][]byte{
 		9: []byte("9 0 obj\n<< /Filter /FlateDecode /Length " +
 			strconv.Itoa(compressed.Len()) + " >>\nstream\n" + compressed.String() + "\nendstream\nendobj\n"),
 	}}
@@ -76,7 +76,7 @@ func TestResolveColorSpaceIndexedWithStreamLookup(t *testing.T) {
 }
 
 func TestResolveColorSpaceIndexedWithInlineString(t *testing.T) {
-	doc := &pdfDoc{raw: map[int][]byte{}}
+	doc := &Doc{raw: map[int][]byte{}}
 	cs := resolveColorSpace(doc, []byte(`[/Indexed /DeviceGray 1 (\000\377)]`))
 	if !cs.ok || !cs.indexed || cs.baseKind != "gray" {
 		t.Fatalf("got %+v", cs)
@@ -87,7 +87,7 @@ func TestResolveColorSpaceIndexedWithInlineString(t *testing.T) {
 }
 
 func TestResolveColorSpaceUnsupportedFamilies(t *testing.T) {
-	doc := &pdfDoc{raw: map[int][]byte{}}
+	doc := &Doc{raw: map[int][]byte{}}
 	for _, v := range [][]byte{
 		[]byte("/Pattern"),
 		[]byte("[/Separation /Spot /DeviceCMYK 4 0 R]"),
