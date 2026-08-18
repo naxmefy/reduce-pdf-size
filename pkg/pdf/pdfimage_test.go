@@ -90,18 +90,18 @@ func TestDownsampleImageNoopWhenSmaller(t *testing.T) {
 
 // recompressAndReload runs RecompressImages on doc, serializes it, and
 // re-parses the result, returning the fresh document for inspection.
-func recompressAndReload(t *testing.T, pdfBytes []byte, quality, maxDim int) (recompressStats, *pdfDoc) {
+func recompressAndReload(t *testing.T, pdfBytes []byte, quality, maxDim int) (RecompressStats, *Doc) {
 	t.Helper()
-	doc, err := LoadPDF(pdfBytes)
+	doc, err := Load(pdfBytes)
 	if err != nil {
-		t.Fatalf("LoadPDF: %v", err)
+		t.Fatalf("Load: %v", err)
 	}
 	stats := RecompressImages(doc, quality, maxDim)
 	out := doc.Build()
 
-	reloaded, err := LoadPDF(out)
+	reloaded, err := Load(out)
 	if err != nil {
-		t.Fatalf("LoadPDF(rebuilt): %v", err)
+		t.Fatalf("Load(rebuilt): %v", err)
 	}
 	return stats, reloaded
 }
