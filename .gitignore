@@ -20,6 +20,10 @@ profile.cov
 # Build directory
 /tmp
 
+# Generated wasm build artifacts (produced by the Pages workflow)
+/web/reduce-pdf-size.wasm
+/web/wasm_exec.js
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
