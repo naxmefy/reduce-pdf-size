@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reduce-pdf-size</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>reduce-pdf-size</h1>
+  <p class="lede">
+    Shrink a PDF's embedded images right in your browser. Nothing is uploaded —
+    the file never leaves your machine.
+  </p>
+
+  <div id="drop" class="drop">
+    <input type="file" id="file-input" accept="application/pdf">
+    <p id="drop-label">Drop a PDF here or click to choose a file</p>
+  </div>
+
+  <div class="controls">
+    <label for="quality">
+      JPEG quality: <span id="quality-value">45</span>
+    </label>
+    <input type="range" id="quality" min="1" max="100" value="45">
+
+    <label for="max-dimension">
+      Max image dimension (px, 0 = no downsampling): <span id="max-dimension-value">2048</span>
+    </label>
+    <input type="range" id="max-dimension" min="0" max="8192" step="64" value="2048">
+
+    <button id="apply-button" type="button" hidden>Apply and reduce again</button>
+  </div>
+
+  <div id="status" class="status" hidden>
+    <span id="spinner" class="spinner" hidden></span>
+    <span id="status-text"></span>
+  </div>
+
+  <div id="result" class="result" hidden>
+    <p id="result-summary"></p>
+    <ul id="result-notes"></ul>
+    <a id="download-link" download>Download reduced PDF</a>
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

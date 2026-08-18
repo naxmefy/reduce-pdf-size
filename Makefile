@@ -2,6 +2,8 @@
 
 BINARY_NAME := reduce-pdf-size
 TMP_DIR := tmp
+WEB_DIR := web
+WEB_PORT := 8080
 
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 
@@ -25,6 +27,21 @@ test: $(TMP_DIR)
 	go test ./... -coverprofile=$(TMP_DIR)/coverage.out
 	go tool cover -func=$(TMP_DIR)/coverage.out
 
+web-build:
+	CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags="$(LDFLAGS)" -o $(WEB_DIR)/$(BINARY_NAME).wasm ./cmd/$(BINARY_NAME)-wasm
+	@GOROOT=$$(go env GOROOT); \
+	for candidate in "$$GOROOT/lib/wasm/wasm_exec.js" "$$GOROOT/misc/wasm/wasm_exec.js"; do \
+		if [ -f "$$candidate" ]; then \
+			cp "$$candidate" $(WEB_DIR)/wasm_exec.js; \
+			exit 0; \
+		fi; \
+	done; \
+	echo "wasm_exec.js not found under $$GOROOT" >&2; exit 1
+
+web-serve: web-build
+	@echo "Serving $(WEB_DIR)/ at http://localhost:$(WEB_PORT) (Ctrl+C to stop)"
+	cd $(WEB_DIR) && python3 -m http.server $(WEB_PORT)
+
 fmt:
 	@unformatted=$$(gofmt -l .); \
 	if [ -n "$$unformatted" ]; then \
@@ -35,7 +52,8 @@ fmt:
 
 clean:
 	@rm -rf $(TMP_DIR)
+	@rm -f $(WEB_DIR)/$(BINARY_NAME).wasm $(WEB_DIR)/wasm_exec.js
 
 default: build
 
-.PHONY: build build-all test fmt clean default
+.PHONY: build build-all test fmt web-build web-serve clean default

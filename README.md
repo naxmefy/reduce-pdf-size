@@ -65,6 +65,14 @@ New size:      2103456 bytes
 Reduction:     75.1%
 ```
 
+## Web demo
+
+The same recompression logic runs entirely client-side in the browser via
+WebAssembly — see [`cmd/reduce-pdf-size-wasm`](cmd/reduce-pdf-size-wasm) and
+[`web/`](web). No file is ever uploaded anywhere; it's deployed via GitHub
+Pages on every push to `main` (see
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+
 ## Tests
 
 ```bash
