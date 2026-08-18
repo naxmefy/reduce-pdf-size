@@ -50,8 +50,6 @@ reduce-pdf-size [-f] [-quality N] [-max-dimension N] [-verbose] <input.pdf> <out
 | `-max-dimension`  | `2048`   | Maximum image edge length in pixels (`0` = no downsampling)     |
 | `-verbose`        | `false`  | Print details about every image found                          |
 
-> Note: the CLI's own flag help and console output are in German, regardless of this README's language.
-
 ### Example
 
 ```bash
@@ -61,13 +59,11 @@ reduce-pdf-size -quality 60 -max-dimension 1600 input.pdf output.pdf
 Output:
 
 ```
-Bilder gefunden: 12, rekomprimiert: 9
-Ursprüngliche Größe: 8452012 Bytes
-Neue Größe:          2103456 Bytes
-Reduzierung:         75.1%
+Images found: 12, recompressed: 9
+Original size: 8452012 bytes
+New size:      2103456 bytes
+Reduction:     75.1%
 ```
-
-(`Bilder gefunden/rekomprimiert` = images found/recompressed, `Ursprüngliche/Neue Größe` = original/new size, `Reduzierung` = reduction.)
 
 ## Tests
 
