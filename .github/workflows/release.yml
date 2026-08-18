@@ -13,10 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - run: make build-all
+      - name: Install git-chglog
+        run: go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+      - name: Generate changelog
+        run: |
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' "${{ github.ref_name }}")
+
+          : > tmp/RELEASE_NOTES.md
+          if [ -n "$TAG_MESSAGE" ]; then
+            echo "$TAG_MESSAGE" | sed 's/^/> /' >> tmp/RELEASE_NOTES.md
+            echo "" >> tmp/RELEASE_NOTES.md
+          fi
+
+          git-chglog -c .chglog/config.yml "${{ github.ref_name }}" >> tmp/RELEASE_NOTES.md
       - uses: softprops/action-gh-release@v2
         with:
           files: tmp/reduce-pdf-size-*
+          body_path: tmp/RELEASE_NOTES.md
