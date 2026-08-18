@@ -25,7 +25,10 @@ jobs:
         run: go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
       - name: Generate changelog
         run: |
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' "${{ github.ref_name }}")
+          TAG_MESSAGE=""
+          if [ "$(git cat-file -t "${{ github.ref_name }}")" = "tag" ]; then
+            TAG_MESSAGE=$(git tag -l --format='%(contents)' "${{ github.ref_name }}")
+          fi
 
           : > tmp/RELEASE_NOTES.md
           if [ -n "$TAG_MESSAGE" ]; then
